@@ -1,0 +1,166 @@
+//  10/12/2015
+unsigned int incomingByte = 0;   // for incoming serial data
+unsigned int count = 0;
+unsigned int count2 = 0;
+unsigned int count3 = 0;
+unsigned int buffer[20];
+//char buffer2[26];
+unsigned int solarvol;
+unsigned int solarcur;
+unsigned int battvol;
+unsigned int battcur;
+unsigned int temp;
+unsigned int trip;
+unsigned int load;
+unsigned int solpower;
+unsigned int units;
+unsigned int solstat;
+void mob_init();
+void setup() 
+{
+  Serial.begin(9600);     
+  mob_init();
+}
+
+void loop() 
+{
+  while(1)
+  {
+    sms();
+  }
+}
+void mob_init()
+{	     
+  Serial.print("AT");        
+  Serial.println();
+  delay(1000);       
+  Serial.print("AT");
+  Serial.println();
+  delay(1000);
+  Serial.print("AT+CREG?");
+  Serial.println();
+  delay(2000);
+  Serial.print("AT+SAPBR=1,1");
+  Serial.println();
+  delay(2000);
+  Serial.print("AT+HTTPINIT");
+  Serial.println();
+  delay(2000);
+}
+void sms()
+{	
+ 
+  Serial.print("AT+HTTPPARA=");
+  Serial.print('"');
+  Serial.print("URL");
+  Serial.print('"');
+  Serial.print(',');
+  Serial.print('"');
+  Serial.print("http://www.krishtec.co.in/ss/site/site1/logger/ins.php?");//55
+//  delay(1000);
+   while (count3 < 10)
+ {
+     waitfor:  
+  if (Serial.available() > 0) 
+  incomingByte = Serial.read();
+  //Serial.print(incomingByte);
+  
+  if(incomingByte != '@') 
+  goto waitfor;
+  count = 0;
+  while (count <=19)
+    {
+      if (Serial.available() > 0) 
+        {
+          incomingByte = Serial.read();
+         buffer[count] = incomingByte;
+         count++;
+         }
+      }
+  
+  solarvol = buffer[0] << 8;
+  solarvol = solarvol | buffer[1];
+  Serial.print("SV=");
+   Serial.print(solarvol);
+ // Serial.print(solarvol,HEX);
+    
+  solarcur = buffer[2] << 8;
+  solarcur = solarcur | buffer[3];
+ Serial.print("&SC=");
+   Serial.print(solarcur);
+  //Serial.print(solarcur,HEX);
+  
+  battvol = buffer[4] << 8;
+  battvol = battvol | buffer[5];
+  Serial.print("&BV=");
+   Serial.print(battvol);
+ // Serial.print(battvol,HEX);
+ 
+  battcur = buffer[6] << 8;
+  battcur = battcur | buffer[7];
+  Serial.print("&BC=");
+    Serial.print(battcur);
+ // Serial.print(battcur,HEX);
+  
+  temp = buffer[8] << 8;
+  temp = temp | buffer[9];
+ Serial.print("&T=");
+   Serial.print(temp);
+  //Serial.print(temp,HEX);
+  
+  trip = buffer[10] << 8;
+  trip = trip | buffer[11];
+ Serial.print("&TP=");
+  Serial.print(trip);
+ // Serial.print(trip,HEX);
+  
+  load = buffer[12] << 8;
+  load = load | buffer[13];
+ Serial.print("&L=");
+   Serial.print(load);
+ // Serial.print(load,HEX);
+  
+  solpower = buffer[14] << 8;
+  solpower = solpower | buffer[15];
+Serial.print("&SP=");
+  Serial.print(solpower);
+   // Serial.print(solpower,HEX);
+  
+  units = buffer[16] << 8;
+  units = units | buffer[17];
+ Serial.print("&SU=");
+  Serial.print(units);
+ // Serial.print(units,HEX);
+  
+  solstat = buffer[18] << 8;
+  solstat = solstat | buffer[19];
+ Serial.print("&SS=");
+   Serial.print(solstat);
+ // Serial.println(solstat,HEX);
+ //buffer[]=0;
+  goto waitfor1;
+ }
+   //goto waitfor;
+  waitfor1:
+  Serial.print('"');
+  Serial.println();
+  delay(1000);
+  Serial.print("AT+HTTPPARA=");
+  Serial.print('"');
+  Serial.print("CID");
+  Serial.print('"');
+  Serial.print(',');
+  Serial.print('1');
+  Serial.println();
+  delay(1000);
+
+  Serial.print("AT+HTTPDATA=90,1000");
+  Serial.println();
+  delay(3000);
+  //delay(1000);
+
+  Serial.print("AT+HTTPACTION=1");
+  Serial.println();
+  delay(1000);
+	 
+}
